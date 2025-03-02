@@ -45,41 +45,6 @@
 </head>
 <body>
     <h1>Quadro de Ideias</h1>
-        // api/websocket.js
-import { Server } from 'ws';
-
-export default (req, res) => {
-  // Criando o servidor WebSocket
-  const wss = new Server({ noServer: true });
-
-  wss.on('connection', (ws) => {
-    console.log('Novo cliente conectado!');
-    
-    ws.on('message', (message) => {
-      console.log('Mensagem recebida:', message);
-
-      // Enviar a mensagem para todos os outros clientes
-      wss.clients.forEach((client) => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(message);
-        }
-      });
-    });
-
-    ws.on('close', () => {
-      console.log('Cliente desconectado');
-    });
-  });
-
-  // Vercel precisa desse código para lidar com WebSocket
-  req.socket.server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request);
-    });
-  });
-
-  res.status(200).send('WebSocket server is running');
-};
 
     <label>Nome de utilizador: <input type="text" id="username" placeholder="Digite seu nome"></label>
     <canvas id="board" width="800" height="500"></canvas>
@@ -154,6 +119,40 @@ export default (req, res) => {
         function clearBoard() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-    </script>
+    </script>        // api/websocket.js
+import { Server } from 'ws';
+
+export default (req, res) => {
+  // Criando o servidor WebSocket
+  const wss = new Server({ noServer: true });
+
+  wss.on('connection', (ws) => {
+    console.log('Novo cliente conectado!');
+    
+    ws.on('message', (message) => {
+      console.log('Mensagem recebida:', message);
+
+      // Enviar a mensagem para todos os outros clientes
+      wss.clients.forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    });
+
+    ws.on('close', () => {
+      console.log('Cliente desconectado');
+    });
+  });
+
+  // Vercel precisa desse código para lidar com WebSocket
+  req.socket.server.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  });
+
+  res.status(200).send('WebSocket server is running');
+};
 </body>
 </html>
